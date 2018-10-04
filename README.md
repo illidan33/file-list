@@ -72,4 +72,5 @@ const exceptDirOrFile = [
 ```
 
 ### 效果如下：
-![image](https://github.com/illidan33/file-list/blob/master/show.jpg)
+![image](https://github.com/illidan33/file-list/blob/master/show (2).jpg)
+![image](https://github.com/illidan33/file-list/blob/master/video_show.jpg)
