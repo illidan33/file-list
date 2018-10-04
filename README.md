@@ -16,19 +16,38 @@ apache 的目录索引样式用的mod_autoindex模块 一般默认为开启状�
 
 2. 配置访问权限，开启目录索引。
 ```
-<Directory />
-    Options Indexes FollowSymLinks
+// httpd.conf修改配置
+DocumentRoot "E:\video" // 比如E盘下面的video目录需要分享给局域网的机器和手机
+<Directory "E:\video">
+    Options Indexes FollowSymLinks // 开启目录所有
     AllowOverride  None
     Order allow,deny
-    Allow from all
+    Allow from all // 配置访问权限
 </Directory>
+
+Listen 80 // 配置监听端口（不需要配置serverName）
 ```
 
 ### 打开nginx的目录索引
 
-1. 只需要打开 nginx.conf 或者对应的虚拟主机配置文件，在 server 或 location 段里面中上 autoindex on; 
+1. 修改nginx.conf配置
+```
+server {
+	listen       80;
+	
+	#自动显示目录
+	location   / {
+		root   E:\video;
+		autoindex on;
+		autoindex_exact_size off;
+		autoindex_localtime on;
+	}
+}
+```
 2. 另外两个配置如下：
 ```
+autoindex on; 
+# 开启目录索引
 autoindex_exact_size on;
 # 默认为 on，以 bytes 为单位显示文件大小；
 # 切换为 off 后，以可读的方式显示文件大小，单位为 KB、MB 或者 GB。
@@ -36,3 +55,9 @@ autoindex_localtime on;
 # 默认为 off，以 GMT 时间作为显示的文件时间；
 # 切换为 on 后，以服务器的文件时间作为显示的文件时间。
 ```
+### 下载美化html文件
+
+1. 开启apache/nginx任意一个目录索引功能之后，启动apache/nginx（不要在video目录放置index.html/index.htm等默认首页文件）。
+2. 把当前项目的include目录和list.html文件放入你想要分享的video目录。
+3. 启动apache或者nginx，访问localhost/list.html。
+4. 如果是局域网其他电脑/手机访问 ip/list.html。
