@@ -62,5 +62,14 @@ autoindex_localtime on;
 3. 启动apache或者nginx，访问localhost/list.html。
 4. 如果是局域网其他电脑/手机访问 ip/list.html。
 
+### 隐藏显示目录或者文件
+
+修改list.html文件变量
+```
+const exceptDirOrFile = [
+            "include/", // 目录后面带'/'，不带则是文件
+        ];
+```
+
 ### 效果如下：
 ![image](https://github.com/illidan33/file-list/blob/master/show.jpg)
