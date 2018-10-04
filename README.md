@@ -2,7 +2,7 @@
 
 A tool to beautify directory index of nginx/apache.
 
-美化nginx/apache目录索引的工具，集成了video-js，替换了h5默认video的播放控制。
+美化nginx/apache目录索引的工具，集成了video-js，替换了h5默认video的播放控制，适配了手机端和电脑端。局域网开启apache/nginx默认目录之后，可以通过内网访问，浏览局域网内服务器的视频和图片，如果是压缩包或者mkv/avi等浏览器不能识别的文件和视频，不会被播放，只会触发浏览器默认操作，如chrome会下载不能识别的文件到本地。
 
 # install/安装
 
