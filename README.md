@@ -1,5 +1,7 @@
 # file-list
-A tool to beautify nginx's directory index
+
+A tool to beautify directory index of nginx/apache.
+
 美化nginx/apache目录索引的工具，集成了video-js，替换了h5默认video的播放控制。
 
 # install/安装
