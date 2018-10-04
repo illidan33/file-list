@@ -61,3 +61,6 @@ autoindex_localtime on;
 2. 把当前项目的include目录和list.html文件放入你想要分享的video目录。
 3. 启动apache或者nginx，访问localhost/list.html。
 4. 如果是局域网其他电脑/手机访问 ip/list.html。
+
+### 效果如下：
+![image]https://github.com/illidan33/file-list/blob/master/show.jpg
