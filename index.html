@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Video List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="include/bootstrap.min.css">
+	<link rel="stylesheet" href="include/video-js.min.css">
+	<style>
+		.video-background {
+			z-index: 1;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.4);
+			top: 0;
+			left: 0;
+		}
+
+		.video-div {
+			z-index: 2;
+			position: relative;
+			top: 0;
+			left: 0;
+			width: 700px;
+			height: 500px;
+			max-width: 100%;
+			max-height: 100%;
+		}
+
+		#close {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="row">
+		<div id="list" class="col-md-3 col-sm-12 col-xs-12" style="margin-top: 20px;"></div>
+	</div>
+
+	<div id="play-div" class="play video-background" style="display: none;">
+		<div id="video-div" class="play video-div" style="width: 700px;height: 500px;max-width: 100%;max-height: 100%;">
+			<video id="my-video" class="video-js vjs-default-skin video-div" controls preload="none">
+				<source id="video-source" src="" type='video/mp4'>
+			</video>
+		</div>
+		<span id="close" class="glyphicon glyphicon-remove"></span>
+	</div>
+</div>
+
+<script src="include/jquery.min.js"></script>
+<!--<script src="include/bootstrap.min.js"></script>-->
+<script src="include/video.min.js"></script>
+<script>
+	$(function() {
+		// video-js组件
+		let options = {
+			controlBar: {
+				volumePanel: {inline: false},
+				width: "100%",
+				height: "100%",
+			},
+		};
+		const video = videojs("my-video", options);
+		$("#my-video").addClass("embed-responsive embed-responsive-4by3");
+		$(".vjs-control-bar").append(
+			'<button class="vjs-control vjs-button vjs-close-control" type="button" title="Close" aria-disabled="false"><span aria-hidden="true" class="glyphicon glyphicon-remove"></span><span class="vjs-control-text" aria-live="polite">Close</span></button>');
+
+		// 默认设置(如果是目录，后面带“/”，否则认为是文件)
+		let rootPath = "/";
+		// 过滤配置
+		const exceptDirOrFile = [
+			"file-list/",
+		];
+
+		// 转化nginx/apache默认目录索引
+		function parsePathFromText(text) {
+			let newPath = "";
+			if (text === "../" || text === "Parent Directory/") {
+				let pathArr = rootPath.split("/");
+				let num = pathArr.length;
+				if (num > 1) {
+					// console.log(pathArr[num]);
+					if (pathArr[num] === undefined || pathArr[num] === null) {
+						pathArr.pop(num - 1);
+						pathArr.pop(num - 2);
+					}
+					else {
+						pathArr.pop(num - 1);
+					}
+					// console.log(pathArr);
+					newPath = pathArr.join("/") + "/";
+				}
+			} else if (text === "./") {
+
+			} else {
+				newPath = rootPath + text;
+			}
+
+			return newPath;
+		}
+
+		function fillBtn(element) {
+			$.get(rootPath, function(response) {
+				// console.log(response);
+				if (!response) {
+					return;
+				}
+				let data = response.match(/<a.*?>(.*?)<\/a>/ig);
+				$(element).html("");// 清空
+				let length = data.length;
+
+				// console.log(data);
+				let text = "<div class='list-group'>";
+				let notDir = "";
+				for (let i = 0; i < length; i++) {
+					let tagA = $(data[i]);
+					let name = $.trim(tagA.html());
+					let flag = false;
+
+					// 过滤不展示的目录或文件
+					let length1 = exceptDirOrFile.length;
+					for (let j = 0; j < length1; j++) {
+						if (exceptDirOrFile[j] === name) {
+							flag = true;
+							break;
+						}
+					}
+					if (flag === true) {
+						continue;
+					}
+
+					if (name.indexOf("Parent Directory") !== -1) {// apache下父级目录名称
+						name += "/";// 补充目录标识
+					}
+
+					if (name.indexOf("/") !== -1) {
+						let padding = "20px";
+						if (name === "../" || name === "Parent Directory/") {
+							if (rootPath === "/") {
+								continue;
+							}
+							padding = "10px";
+						}
+						text += "<button type='button' class='list-group-item' style='cursor: pointer; padding-left: " + padding +
+							";'><span class='glyphicon glyphicon-folder-open' style='margin-right: 10px;'></span>" +
+							name + "</button>";
+					} else {
+						notDir += "<button type='button' class='list-group-item' style='cursor: pointer;padding-left: 50px;'>" + name + "</button>";
+					}
+				}
+				text += notDir + "</div>";
+
+				$(element).append(text);
+
+				$(".list-group-item").click(function() {
+					let text = $(this).text();
+					text = $.trim(text);
+					if (text.indexOf("/") !== -1) {
+						let newPath = parsePathFromText(text);
+						// console.log(newPath);
+						if (newPath !== rootPath) {
+							rootPath = newPath;
+							fillBtn("#list");
+						}
+					} else {
+						if (text.indexOf("mp4") !== -1) {
+							$("#play-div").show();
+							$("#list").hide();
+
+							video.src({
+								type: "video/mp4",
+								src: path + text,
+							});
+							video.load();
+							video.ready(function() {
+								video.play();    // 调用播放函数
+							});
+						} else {
+							window.open(rootPath + text, "new");
+						}
+					}
+
+				});
+			});
+		}
+
+		function exitFullscreen() {
+			if (document.exitFullscreen) {
+				document.exitFullscreen();
+			} else if (document.msExitFullscreen) {
+				document.msExitFullscreen();
+			} else if (document.mozCancelFullScreen) {
+				document.mozCancelFullScreen();
+			} else if (document.webkitExitFullscreen) {
+				document.webkitExitFullscreen();
+			}
+		}
+
+		fillBtn("#list");
+
+		$(".vjs-close-control").click(function() {
+			exitFullscreen();
+			video.pause();
+			$("#play-div").hide();
+			$("#list").show();
+		});
+		$("#close").click(function() {
+			exitFullscreen();
+			video.pause();
+			$("#play-div").hide();
+			$("#list").show();
+		});
+	});
+
+</script>
+</body>
+</html>
