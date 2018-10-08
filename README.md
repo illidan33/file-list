@@ -85,5 +85,5 @@ http://ip:port/file-list/
 ```
 
 ### 效果如下：
-![image](https://github.com/illidan33/file-list/blob/master/show%20(2).jpg)
+![image](https://github.com/illidan33/file-list/blob/master/list-show.jpg)
 ![image](https://github.com/illidan33/file-list/blob/master/video_show.jpg)
